@@ -22,9 +22,7 @@ private const val GLB_BIN_CHUNK_TYPE = 0x004E4942
  * Read byte models of a buffer.
  */
 private fun BufferRaw.getData(dir: String): ByteArray {
-    return uri
-            ?.decodeDataUri()
-            ?: File(dir, uri).readBytes()
+    return uri?.decodeDataUri() ?: File(dir, uri).readBytes()
             ?: throw IllegalArgumentException(
                     "Buffer models is not embedded and does not reference a .bin file that could be found")
 }
