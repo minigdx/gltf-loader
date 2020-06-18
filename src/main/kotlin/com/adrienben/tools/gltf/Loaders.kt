@@ -4,7 +4,9 @@ import com.adrienben.tools.gltf.models.BufferRaw
 import com.adrienben.tools.gltf.models.GltfAssetRaw
 import com.adrienben.tools.gltf.models.GltfRaw
 import com.adrienben.tools.gltf.validation.Validator
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -67,9 +69,18 @@ private class GltfLoader : Loader {
                 .parse<GltfAssetRaw>(file)
                 ?: return null
 
-        val data = assetRaw.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
+        val jsonModel = Parser.default().parse(path) as JsonObject
 
-        return Validator().validate(GltfRaw(assetRaw, data))
+        val extensions = jsonModel.getValue("extensions") as JsonObject
+        val updatedAsset = assetRaw.copy(
+            // replace the extension with JsonObject as Klaxon put Object instead.
+            extensions = assetRaw.extensions?.map {
+                it.key to extensions.getValue(it.key) as JsonObject
+            }?.toMap()
+        )
+
+        val data = updatedAsset.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
+        return Validator().validate(GltfRaw(updatedAsset, data))
     }
 }
 

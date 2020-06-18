@@ -250,7 +250,7 @@ internal class AssetRaw(
         val extras: Extras? = null
 )
 
-internal class GltfAssetRaw(
+internal data class GltfAssetRaw(
         val asset: AssetRaw,
         val extensionsUsed: List<String>? = null,
         val extensionsRequired: List<String>? = null,

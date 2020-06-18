@@ -332,6 +332,7 @@ class GltfAsset(
         val asset: GltfMetadata,
         val extensionsUsed: List<String>? = null,
         val extensionsRequired: List<String>? = null,
+        val extensions: Map<String, Any?> = emptyMap(),
         val buffers: List<GltfBuffer>,
         val bufferViews: List<GltfBufferView>,
         val accessors: List<GltfAccessor>,
