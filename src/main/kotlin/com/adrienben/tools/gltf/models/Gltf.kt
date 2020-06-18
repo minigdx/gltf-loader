@@ -255,7 +255,8 @@ class GltfNode(
         val scale: GltfVec3,
         val translation: GltfVec3,
         val weights: List<Float>?,
-        val name: String?
+        val name: String?,
+        val extensions: Map<String, Any?>?
 ) {
     var skin = skin
         internal set

@@ -180,7 +180,7 @@ internal class CameraRaw(
         val extras: Extras? = null
 )
 
-internal class NodeRaw(
+internal data class NodeRaw(
         val camera: Int? = null,
         val children: List<Int>? = null,
         val skin: Int? = null,

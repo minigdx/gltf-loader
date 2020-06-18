@@ -325,7 +325,8 @@ private fun NodeRaw.map(index: Int, nodes: Array<GltfNode?>, cameras: List<GltfC
             ?: translation?.let(GltfVec3.Factory::fromNumbers)
             ?: GltfVec3(),
         weights = weights?.map(Number::toFloat),
-        name = name)
+        name = name,
+        extensions = extensions)
 }
 
 private fun SkinRaw.map(index: Int, accessors: List<GltfAccessor>, nodes: List<GltfNode>) = GltfSkin(
