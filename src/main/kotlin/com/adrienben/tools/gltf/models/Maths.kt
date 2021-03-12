@@ -102,10 +102,22 @@ class GltfQuaternion(val i: Float = 0f, val j: Float = 0f, val k: Float = 0f, va
  * 4x4-float matrix
  */
 class GltfMat4(
-        val m00: Float = 1f, val m01: Float = 0f, val m02: Float = 0f, val m03: Float = 0f, // first column
-        val m10: Float = 0f, val m11: Float = 1f, val m12: Float = 0f, val m13: Float = 0f, // second column
-        val m20: Float = 0f, val m21: Float = 0f, val m22: Float = 1f, val m23: Float = 0f, // third column
-        val m30: Float = 0f, val m31: Float = 0f, val m32: Float = 0f, val m33: Float = 1f  // fourth column
+    val m00: Float = 1f,
+    val m01: Float = 0f,
+    val m02: Float = 0f,
+    val m03: Float = 0f, // first column
+    val m10: Float = 0f,
+    val m11: Float = 1f,
+    val m12: Float = 0f,
+    val m13: Float = 0f, // second column
+    val m20: Float = 0f,
+    val m21: Float = 0f,
+    val m22: Float = 1f,
+    val m23: Float = 0f, // third column
+    val m30: Float = 0f,
+    val m31: Float = 0f,
+    val m32: Float = 0f,
+    val m33: Float = 1f // fourth column
 ) {
 
     /**

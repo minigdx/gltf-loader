@@ -1,8 +1,36 @@
 package com.adrienben.tools.gltf.validation
 
-import com.adrienben.tools.gltf.models.*
-import org.junit.Test
+import com.adrienben.tools.gltf.models.AccessorRaw
+import com.adrienben.tools.gltf.models.AnimationRaw
+import com.adrienben.tools.gltf.models.AnimationSamplerRaw
+import com.adrienben.tools.gltf.models.AnimationTargetRaw
+import com.adrienben.tools.gltf.models.AssetRaw
+import com.adrienben.tools.gltf.models.BufferRaw
+import com.adrienben.tools.gltf.models.BufferViewRaw
+import com.adrienben.tools.gltf.models.CameraRaw
+import com.adrienben.tools.gltf.models.ChannelRaw
+import com.adrienben.tools.gltf.models.GltfAssetRaw
+import com.adrienben.tools.gltf.models.GltfRaw
+import com.adrienben.tools.gltf.models.ImageRaw
+import com.adrienben.tools.gltf.models.IndicesRaw
+import com.adrienben.tools.gltf.models.MaterialRaw
+import com.adrienben.tools.gltf.models.MeshRaw
+import com.adrienben.tools.gltf.models.NodeRaw
+import com.adrienben.tools.gltf.models.NormalTextureInfoRaw
+import com.adrienben.tools.gltf.models.OcclusionTextureInfoRaw
+import com.adrienben.tools.gltf.models.OrthographicRaw
+import com.adrienben.tools.gltf.models.PbrMetallicRoughnessRaw
+import com.adrienben.tools.gltf.models.PerspectiveRaw
+import com.adrienben.tools.gltf.models.PrimitiveRaw
+import com.adrienben.tools.gltf.models.SamplerRaw
+import com.adrienben.tools.gltf.models.SceneRaw
+import com.adrienben.tools.gltf.models.SkinRaw
+import com.adrienben.tools.gltf.models.SparseRaw
+import com.adrienben.tools.gltf.models.TextureInfoRaw
+import com.adrienben.tools.gltf.models.TextureRaw
+import com.adrienben.tools.gltf.models.ValuesRaw
 import kotlin.test.assertFailsWith
+import org.junit.Test
 
 /**
  * Test class for [Validator]
@@ -19,7 +47,9 @@ class ValidationTest {
                     gltfAssetRaw = GltfAssetRaw(
                             asset = AssetRaw(
                                     version = "2.1" // tested error
-                            ))))
+                            ))
+            )
+    )
 
     @Test
     fun itShouldValidateBuffer() {
@@ -27,9 +57,11 @@ class ValidationTest {
                 data = emptyList(),
                 gltfAssetRaw = GltfAssetRaw(
                         asset = validAsset,
-                        buffers = listOf(BufferRaw(
+                        buffers = listOf(
+                            BufferRaw(
                                 byteLength = 1
-                        )))))
+                        )
+                        ))))
     }
 
     @Test
@@ -59,13 +91,15 @@ class ValidationTest {
                 data = emptyList(),
                 gltfAssetRaw = GltfAssetRaw(
                         asset = validAsset,
-                        bufferViews = listOf(BufferViewRaw(
+                        bufferViews = listOf(
+                            BufferViewRaw(
                                 buffer = 0,
                                 byteOffset = 0,
                                 byteLength = 1,
                                 byteStride = 4,
                                 target = 34962
-                        )))))
+                        )
+                        ))))
     }
 
     @Test
@@ -147,7 +181,8 @@ class ValidationTest {
                 data = emptyList(),
                 gltfAssetRaw = GltfAssetRaw(
                         asset = validAsset,
-                        accessors = listOf(AccessorRaw(
+                        accessors = listOf(
+                            AccessorRaw(
                                 bufferView = 0,
                                 byteOffset = 0,
                                 componentType = 5120,
@@ -165,7 +200,10 @@ class ValidationTest {
                                         values = ValuesRaw(
                                                 bufferView = 0,
                                                 byteOffset = 0
-                                        )))))))
+                                        )
+                                )
+                            )
+                        ))))
     }
 
     @Test
@@ -456,9 +494,11 @@ class ValidationTest {
                     data = emptyList(),
                     gltfAssetRaw = GltfAssetRaw(
                             asset = validAsset,
-                            samplers = listOf(SamplerRaw(
+                            samplers = listOf(
+                                SamplerRaw(
                                     wrapT = 0 // tested error
-                            )))))
+                            )
+                            ))))
 
     @Test
     fun itShouldFailOnEmptySamplers() = itShouldFailToValidate(
