@@ -163,7 +163,10 @@ internal class Mapper(private val gltfRaw: GltfRaw) {
 }
 
 private fun AssetRaw.map() = GltfMetadata(
-    copyright, generator, version, minVersion
+    copyright,
+    generator,
+    version,
+    minVersion
 )
 
 private fun BufferRaw.map(index: Int, gltfRaw: GltfRaw): GltfBuffer {
@@ -186,8 +189,11 @@ private fun IndicesRaw.map(bufferViews: List<GltfBufferView>) = GltfIndices(
     GltfComponentType.fromCode(componentType)
 )
 
-private fun ValuesRaw.map(bufferViews: List<GltfBufferView>) = GltfValues(bufferViews[bufferView], byteOffset
-    ?: 0)
+private fun ValuesRaw.map(bufferViews: List<GltfBufferView>) = GltfValues(
+    bufferViews[bufferView],
+    byteOffset
+        ?: 0
+)
 
 private fun SparseRaw.map(bufferViews: List<GltfBufferView>) = GltfSparse(count, indices.map(bufferViews), values.map(bufferViews))
 
@@ -230,15 +236,22 @@ private fun TextureRaw.map(index: Int, samplers: List<GltfSampler>, images: List
     name
 )
 
-private fun TextureInfoRaw.map(textures: List<GltfTexture>) = GltfTextureInfo(textures[index], texCoord
-    ?: 0)
+private fun TextureInfoRaw.map(textures: List<GltfTexture>) = GltfTextureInfo(
+    textures[index],
+    texCoord
+        ?: 0
+)
 
 private fun NormalTextureInfoRaw.map(textures: List<GltfTexture>) = GltfNormalTextureInfo(
-    textures[index], texCoord ?: 0, scale?.let(Number::toFloat) ?: 1f
+    textures[index],
+    texCoord ?: 0,
+    scale?.let(Number::toFloat) ?: 1f
 )
 
 private fun OcclusionTextureInfoRaw.map(textures: List<GltfTexture>) = GltfOcclusionTextureInfo(
-    textures[index], texCoord ?: 0, strength?.let(Number::toFloat) ?: 1f
+    textures[index],
+    texCoord ?: 0,
+    strength?.let(Number::toFloat) ?: 1f
 )
 
 private fun PbrMetallicRoughnessRaw.map(textures: List<GltfTexture>) = GltfPbrMetallicRoughness(
@@ -278,15 +291,25 @@ private fun MeshRaw.map(index: Int, accessors: List<GltfAccessor>, materials: Li
 )
 
 private fun OrthographicRaw.map() = GltfOrthographic(
-    xmag.toFloat(), ymag.toFloat(), zfar.toFloat(), znear.toFloat()
+    xmag.toFloat(),
+    ymag.toFloat(),
+    zfar.toFloat(),
+    znear.toFloat()
 )
 
 private fun PerspectiveRaw.map() = GltfPerspective(
-    aspectRatio?.toFloat(), yfov.toFloat(), zfar?.toFloat(), znear.toFloat()
+    aspectRatio?.toFloat(),
+    yfov.toFloat(),
+    zfar?.toFloat(),
+    znear.toFloat()
 )
 
 private fun CameraRaw.map(index: Int) = GltfCamera(
-    index, orthographic?.map(), perspective?.map(), GltfCameraType.fromCode(type), name
+    index,
+    orthographic?.map(),
+    perspective?.map(),
+    GltfCameraType.fromCode(type),
+    name
 )
 
 /**
@@ -326,7 +349,8 @@ private fun NodeRaw.map(index: Int, nodes: Array<GltfNode?>, cameras: List<GltfC
             ?: GltfVec3(),
         weights = weights?.map(Number::toFloat),
         name = name,
-        extensions = extensions)
+        extensions = extensions
+    )
 }
 
 private fun SkinRaw.map(index: Int, accessors: List<GltfAccessor>, nodes: List<GltfNode>) = GltfSkin(
@@ -344,11 +368,13 @@ private fun AnimationSamplerRaw.map(accessors: List<GltfAccessor>) = GltfAnimati
 )
 
 private fun AnimationTargetRaw.map(nodes: List<GltfNode>) = GltfAnimationTarget(
-    node?.let(nodes::get), GltfAnimationTargetPath.fromCode(path)
+    node?.let(nodes::get),
+    GltfAnimationTargetPath.fromCode(path)
 )
 
 private fun ChannelRaw.map(samplers: List<GltfAnimationSampler>, nodes: List<GltfNode>) = GltfChannel(
-    samplers[sampler], target.map(nodes)
+    samplers[sampler],
+    target.map(nodes)
 )
 
 private fun AnimationRaw.map(accessors: List<GltfAccessor>, nodes: List<GltfNode>): GltfAnimation {
@@ -357,5 +383,7 @@ private fun AnimationRaw.map(accessors: List<GltfAccessor>, nodes: List<GltfNode
 }
 
 private fun SceneRaw.map(index: Int, gltfNodes: List<GltfNode>) = GltfScene(
-    index, nodes?.map(gltfNodes::get), name
+    index,
+    nodes?.map(gltfNodes::get),
+    name
 )

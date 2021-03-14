@@ -6,7 +6,6 @@ import junit.framework.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
-import kotlin.test.assertNull
 
 class ExtensionsTest {
 

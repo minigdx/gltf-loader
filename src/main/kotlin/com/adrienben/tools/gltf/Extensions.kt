@@ -1,6 +1,6 @@
 package com.adrienben.tools.gltf
 
-import java.util.*
+import java.util.Base64
 
 private val DATA_URI_REGEX = Regex("data:.*(?:;base64)?,(.*)")
 
