@@ -134,9 +134,9 @@ class GltfMat4(
      * Extract the scale from this matrix.
      */
     internal fun scale() = GltfVec3(
-            GltfVec3(m00, m01, m02).length(),
-            GltfVec3(m10, m11, m12).length(),
-            GltfVec3(m20, m21, m22).length()
+        GltfVec3(m00, m01, m02).length(),
+        GltfVec3(m10, m11, m12).length(),
+        GltfVec3(m20, m21, m22).length()
     )
 
     internal companion object Factory {
@@ -147,10 +147,11 @@ class GltfMat4(
         fun fromNumbers(matrix: List<Number>): GltfMat4 {
             if (matrix.size != 16) throw IllegalArgumentException("matrix contains ${matrix.size} elements instead of 16")
             return GltfMat4(
-                    matrix[0].toFloat(), matrix[1].toFloat(), matrix[2].toFloat(), matrix[3].toFloat(),
-                    matrix[4].toFloat(), matrix[5].toFloat(), matrix[6].toFloat(), matrix[7].toFloat(),
-                    matrix[8].toFloat(), matrix[9].toFloat(), matrix[10].toFloat(), matrix[11].toFloat(),
-                    matrix[12].toFloat(), matrix[13].toFloat(), matrix[14].toFloat(), matrix[15].toFloat())
+                matrix[0].toFloat(), matrix[1].toFloat(), matrix[2].toFloat(), matrix[3].toFloat(),
+                matrix[4].toFloat(), matrix[5].toFloat(), matrix[6].toFloat(), matrix[7].toFloat(),
+                matrix[8].toFloat(), matrix[9].toFloat(), matrix[10].toFloat(), matrix[11].toFloat(),
+                matrix[12].toFloat(), matrix[13].toFloat(), matrix[14].toFloat(), matrix[15].toFloat()
+            )
         }
     }
 }

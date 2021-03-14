@@ -2,10 +2,10 @@ package com.adrienben.tools.gltf.validation
 
 import com.adrienben.tools.gltf.models.GltfAsset
 import com.beust.klaxon.JsonObject
-import java.io.File
 import junit.framework.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.File
 
 class ExtensionsTest {
 

@@ -25,8 +25,9 @@ private const val GLB_BIN_CHUNK_TYPE = 0x004E4942
  */
 private fun BufferRaw.getData(dir: String): ByteArray {
     return uri?.decodeDataUri() ?: File(dir, uri).readBytes()
-    ?: throw IllegalArgumentException(
-        "Buffer models is not embedded and does not reference a .bin file that could be found")
+        ?: throw IllegalArgumentException(
+            "Buffer models is not embedded and does not reference a .bin file that could be found"
+        )
 }
 
 /**
@@ -120,7 +121,8 @@ private class GlbLoader : Loader {
                 val secondChunkHeader = it.readChunkHeader().apply { validate(GLB_BIN_CHUNK_TYPE) }
                 val bin = ByteArray(secondChunkHeader.length)
                 if (it.read(bin) != secondChunkHeader.length) throw IllegalArgumentException(
-                    "Failed to read bytes from input stream.")
+                    "Failed to read bytes from input stream."
+                )
                 data.add(bin)
             }
 
@@ -136,7 +138,9 @@ private class GlbLoader : Loader {
      * Read the [GlbHeader] from an [InputStream].
      */
     private fun InputStream.readGlbHeader() = GlbHeader(
-        this.readInt(), this.readInt(), this.readInt()
+        this.readInt(),
+        this.readInt(),
+        this.readInt()
     )
 
     /**
