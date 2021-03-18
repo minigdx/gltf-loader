@@ -1,6 +1,33 @@
 package com.adrienben.tools.gltf.validation
 
-import com.adrienben.tools.gltf.models.*
+import com.adrienben.tools.gltf.models.AccessorRaw
+import com.adrienben.tools.gltf.models.AnimationRaw
+import com.adrienben.tools.gltf.models.AnimationSamplerRaw
+import com.adrienben.tools.gltf.models.AnimationTargetRaw
+import com.adrienben.tools.gltf.models.AssetRaw
+import com.adrienben.tools.gltf.models.BufferRaw
+import com.adrienben.tools.gltf.models.BufferViewRaw
+import com.adrienben.tools.gltf.models.CameraRaw
+import com.adrienben.tools.gltf.models.ChannelRaw
+import com.adrienben.tools.gltf.models.GltfRaw
+import com.adrienben.tools.gltf.models.ImageRaw
+import com.adrienben.tools.gltf.models.IndicesRaw
+import com.adrienben.tools.gltf.models.MaterialRaw
+import com.adrienben.tools.gltf.models.MeshRaw
+import com.adrienben.tools.gltf.models.NodeRaw
+import com.adrienben.tools.gltf.models.NormalTextureInfoRaw
+import com.adrienben.tools.gltf.models.OcclusionTextureInfoRaw
+import com.adrienben.tools.gltf.models.OrthographicRaw
+import com.adrienben.tools.gltf.models.PbrMetallicRoughnessRaw
+import com.adrienben.tools.gltf.models.PerspectiveRaw
+import com.adrienben.tools.gltf.models.PrimitiveRaw
+import com.adrienben.tools.gltf.models.SamplerRaw
+import com.adrienben.tools.gltf.models.SceneRaw
+import com.adrienben.tools.gltf.models.SkinRaw
+import com.adrienben.tools.gltf.models.SparseRaw
+import com.adrienben.tools.gltf.models.TextureInfoRaw
+import com.adrienben.tools.gltf.models.TextureRaw
+import com.adrienben.tools.gltf.models.ValuesRaw
 import com.adrienben.tools.gltf.validation.Matchers.anEmptyMap
 import com.adrienben.tools.gltf.validation.Matchers.atLeast
 import com.adrienben.tools.gltf.validation.Matchers.be
@@ -200,13 +227,13 @@ private fun PrimitiveRaw.validate(fieldPath: String) {
     material?.shouldBeAValidRef("$fieldPath.material")
     mode?.shouldBeOneOf(PRIMITIVE_MODES, "$fieldPath.mode")
     targets?.shouldNotBeEmpty("$fieldPath.targets")
-            ?.forEachIndexed { index, it -> it.shouldNotBeEmpty("$fieldPath.targets[$index]") }
+        ?.forEachIndexed { index, it -> it.shouldNotBeEmpty("$fieldPath.targets[$index]") }
 }
 
 private fun MeshRaw.validate(index: Int) {
     val path = "meshes[$index]"
     primitives.shouldNotBeEmpty("$path.primitives")
-            .forEachIndexed { pIndex, it -> it.validate("$path.primitives[$pIndex]") }
+        .forEachIndexed { pIndex, it -> it.validate("$path.primitives[$pIndex]") }
     weights?.shouldNotBeEmpty("$path.weights")
 }
 
@@ -247,7 +274,7 @@ private fun SkinRaw.validate(index: Int) {
     inverseBindMatrices?.shouldBeAValidRef("$path.inverseBindMatrices")
     skeleton?.shouldBeAValidRef("$path.skeleton")
     joints.shouldNotBeEmpty("$path.joints")
-            .forEachIndexed { jIndex, it -> it.shouldBeAValidRef("$path.joints[$jIndex]") }
+        .forEachIndexed { jIndex, it -> it.shouldBeAValidRef("$path.joints[$jIndex]") }
 }
 
 private fun AnimationTargetRaw.validate(fieldPath: String) {
@@ -269,15 +296,15 @@ private fun ChannelRaw.validate(fieldPath: String) {
 private fun AnimationRaw.validate(index: Int) {
     val path = "animations[$index]"
     channels.shouldNotBeEmpty("$path.channels")
-            .forEachIndexed { cIndex, it -> it.validate("$path.channels[$cIndex]") }
+        .forEachIndexed { cIndex, it -> it.validate("$path.channels[$cIndex]") }
     samplers.shouldNotBeEmpty("$path.samplers")
-            .forEachIndexed { sIndex, it -> it.validate("$path.samplers[$sIndex]") }
+        .forEachIndexed { sIndex, it -> it.validate("$path.samplers[$sIndex]") }
 }
 
 private fun SceneRaw.validate(index: Int) {
     val path = "scenes[$index]"
     nodes?.shouldNotBeEmpty("$path.nodes")
-            ?.forEachIndexed { nIndex, it -> it.shouldBeAValidRef("$path.nodes[$nIndex]") }
+        ?.forEachIndexed { nIndex, it -> it.shouldBeAValidRef("$path.nodes[$nIndex]") }
 }
 
 private fun AssetRaw.validate() {

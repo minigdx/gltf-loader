@@ -4,7 +4,9 @@ import com.adrienben.tools.gltf.models.BufferRaw
 import com.adrienben.tools.gltf.models.GltfAssetRaw
 import com.adrienben.tools.gltf.models.GltfRaw
 import com.adrienben.tools.gltf.validation.Validator
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -22,11 +24,10 @@ private const val GLB_BIN_CHUNK_TYPE = 0x004E4942
  * Read byte models of a buffer.
  */
 private fun BufferRaw.getData(dir: String): ByteArray {
-    return uri
-            ?.decodeDataUri()
-            ?: File(dir, uri).readBytes()
-            ?: throw IllegalArgumentException(
-                    "Buffer models is not embedded and does not reference a .bin file that could be found")
+    return uri?.decodeDataUri() ?: File(dir, uri).readBytes()
+        ?: throw IllegalArgumentException(
+            "Buffer models is not embedded and does not reference a .bin file that could be found"
+        )
 }
 
 /**
@@ -66,12 +67,32 @@ private class GltfLoader : Loader {
     override fun load(path: String): GltfRaw? {
         val file = File(path)
         val assetRaw = Klaxon()
-                .parse<GltfAssetRaw>(file)
-                ?: return null
+            .parse<GltfAssetRaw>(file)
+            ?: return null
 
-        val data = assetRaw.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
+        val jsonModel = Parser.default().parse(path) as JsonObject
 
-        return Validator().validate(GltfRaw(assetRaw, data))
+        val extensions = jsonModel.obj("extensions")
+        val nodes = jsonModel.array<JsonObject>("nodes")
+            ?.mapChildren { it.obj("extensions") }
+            ?.value
+
+        val updatedAsset = assetRaw.copy(
+            // replace the extension with JsonObject as Klaxon put Object instead.
+            extensions = assetRaw.extensions?.mapNotNull { entry ->
+                extensions?.obj(entry.key)?.let { entry.key to it }
+            }?.toMap(),
+            nodes = assetRaw.nodes?.mapIndexed { index, n ->
+                n.copy(extensions = nodes?.getOrNull(index)?.asMap())
+            }
+        )
+
+        val data = updatedAsset.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
+        return Validator().validate(GltfRaw(updatedAsset, data))
+    }
+
+    private fun JsonObject.asMap(): Map<String, Any>? {
+        return this.map.filterValues { it != null } as Map<String, Any>
     }
 }
 
@@ -92,21 +113,22 @@ private class GlbLoader : Loader {
 
             val firstChunkHeader = it.readChunkHeader().apply { validate(GLB_JSON_CHUNK_TYPE) }
             val assetRaw = Klaxon()
-                    .parse<GltfAssetRaw>(it.readString(firstChunkHeader.length))
-                    ?: return null
+                .parse<GltfAssetRaw>(it.readString(firstChunkHeader.length))
+                ?: return null
 
             val data = ArrayList<ByteArray>()
             if (glbHeader.length - GLB_HEADER_LENGTH > firstChunkHeader.length) {
                 val secondChunkHeader = it.readChunkHeader().apply { validate(GLB_BIN_CHUNK_TYPE) }
                 val bin = ByteArray(secondChunkHeader.length)
                 if (it.read(bin) != secondChunkHeader.length) throw IllegalArgumentException(
-                        "Failed to read bytes from input stream.")
+                    "Failed to read bytes from input stream."
+                )
                 data.add(bin)
             }
 
             assetRaw.buffers
-                    ?.filterIndexed { index, buffer -> index != 0 || buffer.uri != null }
-                    ?.mapTo(data) { it.getData(file.parent.toString()) }
+                ?.filterIndexed { index, buffer -> index != 0 || buffer.uri != null }
+                ?.mapTo(data) { it.getData(file.parent.toString()) }
 
             return Validator().validate(GltfRaw(assetRaw, data))
         }
@@ -116,7 +138,9 @@ private class GlbLoader : Loader {
      * Read the [GlbHeader] from an [InputStream].
      */
     private fun InputStream.readGlbHeader() = GlbHeader(
-            this.readInt(), this.readInt(), this.readInt()
+        this.readInt(),
+        this.readInt(),
+        this.readInt()
     )
 
     /**
