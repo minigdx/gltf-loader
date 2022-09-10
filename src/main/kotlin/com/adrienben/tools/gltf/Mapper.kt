@@ -412,7 +412,8 @@ private fun NodeRaw.map(
             ?: GltfVec3(),
         weights = weights?.map(Number::toFloat),
         name = name,
-        extensions = extensions
+        extensions = extensions,
+        extras = extras
     )
 }
 

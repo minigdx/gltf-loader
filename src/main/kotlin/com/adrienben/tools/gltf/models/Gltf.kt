@@ -256,7 +256,8 @@ class GltfNode(
     val translation: GltfVec3,
     val weights: List<Float>?,
     val name: String?,
-    val extensions: Map<String, Any?>?
+    val extensions: Map<String, Any?>?,
+    val extras: Map<String, Any?>?
 ) {
 
     var skin = skin
@@ -396,8 +397,8 @@ class GltfAsset(
         /**
          * Load a gltf asset model from the gltf json file [path]
          */
-        fun fromFile(path: String): GltfAsset? {
-            val asset = Loader.fromExtension(path.substringAfterLast('.')).load(path) ?: return null
+        fun fromFile(path: String): GltfAsset {
+            val asset = Loader.fromExtension(path.substringAfterLast('.')).load(path)
             return Mapper(asset).map()
         }
     }

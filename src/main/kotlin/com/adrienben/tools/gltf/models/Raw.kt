@@ -2,7 +2,7 @@ package com.adrienben.tools.gltf.models
 
 internal typealias Extensions = Map<String, Any>
 
-internal typealias Extras = Any
+internal typealias Extras = Map<String, Any>
 
 internal class BufferRaw(
     val uri: String? = null,

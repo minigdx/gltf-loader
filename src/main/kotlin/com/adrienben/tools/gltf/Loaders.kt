@@ -37,7 +37,7 @@ internal interface Loader {
     /**
      * Load a gltf asset from a file.
      */
-    fun load(path: String): GltfRaw?
+    fun load(path: String): GltfRaw
 
     /**
      * Companion factory.
