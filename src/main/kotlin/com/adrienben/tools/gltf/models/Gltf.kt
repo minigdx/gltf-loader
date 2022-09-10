@@ -258,6 +258,7 @@ class GltfNode(
     val name: String?,
     val extensions: Map<String, Any?>?
 ) {
+
     var skin = skin
         internal set
 }
@@ -326,6 +327,43 @@ class GltfMetadata(
     val minVersion: String?
 )
 
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_lights_punctual/README.md
+sealed class GltfLightPunctualExtension(
+    val type: GltfLightType,
+    val name: String,
+    val color: GltfColor,
+    val intensity: Float
+) {
+
+    class GltfDirectionalLight(
+        name: String,
+        color: GltfColor,
+        intensity: Float
+    ) : GltfLightPunctualExtension(GltfLightType.DIRECTIONAL, name, color, intensity)
+
+    class GltfPointLight(
+        name: String,
+        color: GltfColor,
+        intensity: Float,
+    ) : GltfLightPunctualExtension(GltfLightType.POINT, name, color, intensity)
+
+    class GltfSpotLight(
+        name: String,
+        color: GltfColor,
+        intensity: Float,
+        val innerConeAngle: Float,
+        val outerConeAngle: Float,
+    ) : GltfLightPunctualExtension(GltfLightType.SPOT, name, color, intensity)
+}
+
+/**
+ * Extensions Information
+ */
+class GltfExtension(
+    val lightsPunctual: List<GltfLightPunctualExtension> = emptyList(),
+    val unmapperExtensions: Map<String, Any>
+)
+
 /**
  * Gltf asset
  */
@@ -333,7 +371,7 @@ class GltfAsset(
     val asset: GltfMetadata,
     val extensionsUsed: List<String>? = null,
     val extensionsRequired: List<String>? = null,
-    val extensions: Map<String, Any?> = emptyMap(),
+    val extensions: GltfExtension? = null,
     val buffers: List<GltfBuffer>,
     val bufferViews: List<GltfBufferView>,
     val accessors: List<GltfAccessor>,
