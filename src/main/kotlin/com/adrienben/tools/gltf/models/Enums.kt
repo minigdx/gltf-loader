@@ -266,3 +266,9 @@ enum class GltfInterpolationType(val code: String) {
         }
     }
 }
+
+enum class GltfLightType {
+    DIRECTIONAL,
+    POINT,
+    SPOT
+}

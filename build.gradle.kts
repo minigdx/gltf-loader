@@ -1,14 +1,13 @@
 plugins {
-    id("com.github.minigdx.gradle.plugin.developer.jvm") version "1.0.0"
+    id("com.github.minigdx.gradle.plugin.developer.jvm") version "1.1.0"
     id("jacoco")
 }
 
 dependencies {
-    // JsonObject can be exposed through deserialization
-    api("com.beust:klaxon:5.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
 
     testImplementation(kotlin("test-junit"))
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.2")
 }
 
 minigdxDeveloper {

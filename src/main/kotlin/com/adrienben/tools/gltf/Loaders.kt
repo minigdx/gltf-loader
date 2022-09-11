@@ -4,9 +4,8 @@ import com.adrienben.tools.gltf.models.BufferRaw
 import com.adrienben.tools.gltf.models.GltfAssetRaw
 import com.adrienben.tools.gltf.models.GltfRaw
 import com.adrienben.tools.gltf.validation.Validator
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.Parser
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -38,7 +37,7 @@ internal interface Loader {
     /**
      * Load a gltf asset from a file.
      */
-    fun load(path: String): GltfRaw?
+    fun load(path: String): GltfRaw
 
     /**
      * Companion factory.
@@ -61,38 +60,17 @@ internal interface Loader {
  */
 private class GltfLoader : Loader {
 
+    private val mapper = ObjectMapper().registerKotlinModule()
+
     /**
      * Load a .gltf file.
      */
-    override fun load(path: String): GltfRaw? {
+    override fun load(path: String): GltfRaw {
         val file = File(path)
-        val assetRaw = Klaxon()
-            .parse<GltfAssetRaw>(file)
-            ?: return null
+        val assetRaw = mapper.readValue(file, GltfAssetRaw::class.java)
 
-        val jsonModel = Parser.default().parse(path) as JsonObject
-
-        val extensions = jsonModel.obj("extensions")
-        val nodes = jsonModel.array<JsonObject>("nodes")
-            ?.mapChildren { it.obj("extensions") }
-            ?.value
-
-        val updatedAsset = assetRaw.copy(
-            // replace the extension with JsonObject as Klaxon put Object instead.
-            extensions = assetRaw.extensions?.mapNotNull { entry ->
-                extensions?.obj(entry.key)?.let { entry.key to it }
-            }?.toMap(),
-            nodes = assetRaw.nodes?.mapIndexed { index, n ->
-                n.copy(extensions = nodes?.getOrNull(index)?.asMap())
-            }
-        )
-
-        val data = updatedAsset.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
-        return Validator().validate(GltfRaw(updatedAsset, data))
-    }
-
-    private fun JsonObject.asMap(): Map<String, Any>? {
-        return this.map.filterValues { it != null } as Map<String, Any>
+        val data = assetRaw.buffers?.map { it.getData(file.parent.toString()) } ?: emptyList()
+        return Validator().validate(GltfRaw(assetRaw, data))
     }
 }
 
@@ -103,21 +81,22 @@ private class GlbLoader : Loader {
 
     private val int32Buffer = ByteArray(4)
 
+    private val mapper = ObjectMapper().registerKotlinModule()
+
     /**
      * Load a .glb file.
      */
-    override fun load(path: String): GltfRaw? {
+    override fun load(path: String): GltfRaw {
         val file = File(path)
         file.inputStream().use {
             val glbHeader = it.readGlbHeader().apply { validate() }
 
             val firstChunkHeader = it.readChunkHeader().apply { validate(GLB_JSON_CHUNK_TYPE) }
-            val assetRaw = Klaxon()
-                .parse<GltfAssetRaw>(it.readString(firstChunkHeader.length))
-                ?: return null
+            val assetRaw = mapper.readValue(it.readString(firstChunkHeader.length), GltfAssetRaw::class.java)
 
             val data = ArrayList<ByteArray>()
-            if (glbHeader.length - GLB_HEADER_LENGTH > firstChunkHeader.length) {
+            // https://github.com/mgsx-dev/gdx-gltf/blob/aa6951ab845a4cdf97f8fe08c10845444ffe8b5a/gltf/src/net/mgsx/gltf/loaders/glb/BinaryDataFileResolver.java#L25
+            if (glbHeader.length - GLB_HEADER_LENGTH - 8 > firstChunkHeader.length) {
                 val secondChunkHeader = it.readChunkHeader().apply { validate(GLB_BIN_CHUNK_TYPE) }
                 val bin = ByteArray(secondChunkHeader.length)
                 if (it.read(bin) != secondChunkHeader.length) throw IllegalArgumentException(
@@ -182,7 +161,7 @@ private class GlbLoader : Loader {
          */
         fun validate() {
             if (magic != GLB_MAGIC_FLAG) throw IllegalArgumentException("Failed to read file. Illegal magic value in header.")
-            if (length == 12) throw IllegalArgumentException("Failed to read file. No content.")
+            if (length == GLB_HEADER_LENGTH) throw IllegalArgumentException("Failed to read file. No content.")
         }
     }
 

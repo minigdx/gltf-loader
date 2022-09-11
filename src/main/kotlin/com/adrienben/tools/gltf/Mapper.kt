@@ -9,6 +9,7 @@ import com.adrienben.tools.gltf.models.BufferRaw
 import com.adrienben.tools.gltf.models.BufferViewRaw
 import com.adrienben.tools.gltf.models.CameraRaw
 import com.adrienben.tools.gltf.models.ChannelRaw
+import com.adrienben.tools.gltf.models.Extensions
 import com.adrienben.tools.gltf.models.GltfAccessor
 import com.adrienben.tools.gltf.models.GltfAlphaMode
 import com.adrienben.tools.gltf.models.GltfAnimation
@@ -25,10 +26,12 @@ import com.adrienben.tools.gltf.models.GltfCameraType
 import com.adrienben.tools.gltf.models.GltfChannel
 import com.adrienben.tools.gltf.models.GltfColor
 import com.adrienben.tools.gltf.models.GltfComponentType
+import com.adrienben.tools.gltf.models.GltfExtension
 import com.adrienben.tools.gltf.models.GltfFilter
 import com.adrienben.tools.gltf.models.GltfImage
 import com.adrienben.tools.gltf.models.GltfIndices
 import com.adrienben.tools.gltf.models.GltfInterpolationType
+import com.adrienben.tools.gltf.models.GltfLightPunctualExtension
 import com.adrienben.tools.gltf.models.GltfMat4
 import com.adrienben.tools.gltf.models.GltfMaterial
 import com.adrienben.tools.gltf.models.GltfMesh
@@ -72,6 +75,7 @@ import com.adrienben.tools.gltf.models.SparseRaw
 import com.adrienben.tools.gltf.models.TextureInfoRaw
 import com.adrienben.tools.gltf.models.TextureRaw
 import com.adrienben.tools.gltf.models.ValuesRaw
+import java.lang.Math.PI
 
 /**
  * [GltfAsset] mapper.
@@ -143,7 +147,7 @@ internal class Mapper(private val gltfRaw: GltfRaw) {
             asset = asset.asset.map(),
             extensionsUsed = asset.extensionsUsed?.toList(),
             extensionsRequired = asset.extensionsRequired?.toList(),
-            extensions = asset.extensions?.toMap() ?: emptyMap(),
+            extensions = asset.extensions?.toGltfExtensions(),
             buffers = buffers,
             bufferViews = bufferViews,
             accessors = accessors,
@@ -160,6 +164,53 @@ internal class Mapper(private val gltfRaw: GltfRaw) {
             scene = asset.scene?.let(scenes::get)
         )
     }
+}
+
+private const val KHR_LIGHTS_EXTENSION = "KHR_lights_punctual"
+private fun Extensions.toGltfExtensions(): GltfExtension {
+    val lights = this[KHR_LIGHTS_EXTENSION] as? Map<String, Any> ?: emptyMap()
+    val gltfLights = (lights["lights"] as? List<Map<String, Any>>)?.mapNotNull {
+        val color = (it["color"] as List<Number>).let {
+            val (r, g, b) = it
+            GltfColor(r.toFloat(), g.toFloat(), b.toFloat(), 1.0f)
+        }
+        val type = it["type"].toString()
+        val name = it["name"].toString()
+        val intensity = (it["intensity"] as? Number)?.toFloat() ?: 1.0f
+        when (type) {
+            "point" -> GltfLightPunctualExtension.GltfPointLight(
+                name = name,
+                color = color,
+                intensity = intensity
+            )
+
+            "directional" -> GltfLightPunctualExtension.GltfDirectionalLight(
+                name = name,
+                color = color,
+                intensity = intensity
+            )
+
+            "spot" -> {
+                val spot = it["spot"] as? Map<*, *>
+                val innerConeAngle = spot?.get("innerConeAngle")?.toString()?.toFloat() ?: 0f
+                val outerConeAngle = spot?.get("outerConeAngle")?.toString()?.toFloat() ?: (PI.toFloat() / 4.0f)
+                GltfLightPunctualExtension.GltfSpotLight(
+                    name = name,
+                    color = color,
+                    intensity = intensity,
+                    innerConeAngle = innerConeAngle,
+                    outerConeAngle = outerConeAngle
+                )
+            }
+
+            else -> null
+        }
+    }
+
+    return GltfExtension(
+        lightsPunctual = gltfLights ?: emptyList(),
+        unmapperExtensions = this.minus(KHR_LIGHTS_EXTENSION)
+    )
 }
 
 private fun AssetRaw.map() = GltfMetadata(
@@ -195,7 +246,8 @@ private fun ValuesRaw.map(bufferViews: List<GltfBufferView>) = GltfValues(
         ?: 0
 )
 
-private fun SparseRaw.map(bufferViews: List<GltfBufferView>) = GltfSparse(count, indices.map(bufferViews), values.map(bufferViews))
+private fun SparseRaw.map(bufferViews: List<GltfBufferView>) =
+    GltfSparse(count, indices.map(bufferViews), values.map(bufferViews))
 
 private fun AccessorRaw.map(index: Int, bufferViews: List<GltfBufferView>) = GltfAccessor(
     index,
@@ -317,7 +369,13 @@ private fun CameraRaw.map(index: Int) = GltfCamera(
  *
  * If the node has unmapped children, it maps them first
  */
-private fun NodeRaw.map(index: Int, assetRaw: GltfAssetRaw, nodes: Array<GltfNode?>, cameras: List<GltfCamera>, meshes: List<GltfMesh>) {
+private fun NodeRaw.map(
+    index: Int,
+    assetRaw: GltfAssetRaw,
+    nodes: Array<GltfNode?>,
+    cameras: List<GltfCamera>,
+    meshes: List<GltfMesh>
+) {
     if (nodes[index] != null) return
 
     val shouldMapChildren = children?.any { nodes[it] == null } ?: false
@@ -329,7 +387,12 @@ private fun NodeRaw.map(index: Int, assetRaw: GltfAssetRaw, nodes: Array<GltfNod
     if (nodes[index] == null) nodes[index] = this.map(index, nodes, cameras, meshes)
 }
 
-private fun NodeRaw.map(index: Int, nodes: Array<GltfNode?>, cameras: List<GltfCamera>, meshes: List<GltfMesh>): GltfNode {
+private fun NodeRaw.map(
+    index: Int,
+    nodes: Array<GltfNode?>,
+    cameras: List<GltfCamera>,
+    meshes: List<GltfMesh>
+): GltfNode {
     val mat = matrix?.let(GltfMat4.Factory::fromNumbers)
 
     return GltfNode(
@@ -349,7 +412,8 @@ private fun NodeRaw.map(index: Int, nodes: Array<GltfNode?>, cameras: List<GltfC
             ?: GltfVec3(),
         weights = weights?.map(Number::toFloat),
         name = name,
-        extensions = extensions
+        extensions = extensions,
+        extras = extras
     )
 }
 
