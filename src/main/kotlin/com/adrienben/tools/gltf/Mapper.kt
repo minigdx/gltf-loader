@@ -167,6 +167,7 @@ internal class Mapper(private val gltfRaw: GltfRaw) {
 }
 
 private const val KHR_LIGHTS_EXTENSION = "KHR_lights_punctual"
+@Suppress("UNCHECKED_CAST")
 private fun Extensions.toGltfExtensions(): GltfExtension {
     val lights = this[KHR_LIGHTS_EXTENSION] as? Map<String, Any> ?: emptyMap()
     val gltfLights = (lights["lights"] as? List<Map<String, Any>>)?.mapNotNull {
