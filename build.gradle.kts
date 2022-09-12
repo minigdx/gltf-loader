@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.minigdx.gradle.plugin.developer.jvm") version "1.1.0"
+    id("com.github.minigdx.gradle.plugin.developer.jvm") version "DEV-SNAPSHOT"
     id("jacoco")
 }
 
