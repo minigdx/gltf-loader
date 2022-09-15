@@ -1,0 +1,16 @@
+[versions]
+minigdx-plugin-jvm = "1.2.0"
+junit = "4.13.2"
+jackson = "2.13.4"
+
+[libraries]
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
+junit = { module = "junit:junit", version.ref = "junit" }
+jackson = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+
+[bundles]
+test = ["kotlin-test", "kotlin-test-junit", "junit"]
+
+[plugins]
+minigdx-jvm = { id = "com.github.minigdx.gradle.plugin.developer.jvm", version.ref = "minigdx-plugin-jvm" }

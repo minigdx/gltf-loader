@@ -1,13 +1,12 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    id("com.github.minigdx.gradle.plugin.developer.jvm") version "1.1.0"
+    alias(libs.plugins.minigdx.jvm)
     id("jacoco")
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
-
-    testImplementation(kotlin("test-junit"))
-    testImplementation("junit:junit:4.13.2")
+    implementation(libs.jackson)
+    testImplementation(libs.bundles.test)
 }
 
 minigdxDeveloper {
